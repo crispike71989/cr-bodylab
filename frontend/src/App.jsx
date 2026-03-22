@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-const API = "http://localhost:3001/api";
+const API = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 async function callAI(prompt, system = null, max_tokens = 2000) {
   try {
