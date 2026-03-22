@@ -54,13 +54,24 @@ app.post("/api/ai", async (req, res) => {
   }
 });
 
-initDB()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Backend running on http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Failed to initialize database:", err);
-    process.exit(1);
-  });
+// Start HTTP server immediately so Railway health checks pass
+app.listen(PORT, () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
+});
+
+// Connect to DB after server is up, with retries
+async function connectWithRetry(retries = 10, delay = 3000) {
+  for (let i = 1; i <= retries; i++) {
+    try {
+      await initDB();
+      console.log("Database connected and ready.");
+      return;
+    } catch (err) {
+      console.error(`DB connection attempt ${i}/${retries} failed:`, err.message);
+      if (i < retries) await new Promise(r => setTimeout(r, delay));
+    }
+  }
+  console.error("Could not connect to database after all retries.");
+}
+
+connectWithRetry();
