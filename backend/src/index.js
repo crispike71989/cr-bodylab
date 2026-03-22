@@ -1,3 +1,8 @@
+console.log("== CR BODYLAB BACKEND STARTING ==");
+console.log("Node version:", process.version);
+console.log("PORT env:", process.env.PORT);
+console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
+
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
