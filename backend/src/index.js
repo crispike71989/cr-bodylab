@@ -1,12 +1,6 @@
-console.log("== CR BODYLAB BACKEND STARTING ==");
-console.log("Node version:", process.version);
-console.log("PORT env:", process.env.PORT);
-console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
-
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { initDB } = require("./db/database");
 
 const studentsRouter = require("./routes/students");
 const routinesRouter = require("./routes/routines");
@@ -59,24 +53,7 @@ app.post("/api/ai", async (req, res) => {
   }
 });
 
-// Start HTTP server immediately so Railway health checks pass
 app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
+  console.log(`CR BODYLAB Backend running on port ${PORT}`);
+  console.log(`Data stored at: ${process.env.DATA_DIR || "local"}/gym-data.json`);
 });
-
-// Connect to DB after server is up, with retries
-async function connectWithRetry(retries = 10, delay = 3000) {
-  for (let i = 1; i <= retries; i++) {
-    try {
-      await initDB();
-      console.log("Database connected and ready.");
-      return;
-    } catch (err) {
-      console.error(`DB connection attempt ${i}/${retries} failed:`, err.message);
-      if (i < retries) await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  console.error("Could not connect to database after all retries.");
-}
-
-connectWithRetry();
